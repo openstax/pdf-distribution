@@ -1,0 +1,18 @@
+{
+  "Records": [
+    {
+      "cf": {
+        "request": {
+          "headers": {
+            "cloudfront-viewer-country": [
+              {
+                "key": "CloudFront-Viewer-Country",
+                "value": "JP"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

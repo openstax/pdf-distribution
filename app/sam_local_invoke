@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# sam calls happen inside our development environment docker container.  We
+# installed the `docker` CLI client inside this docker container and mounted
+# the host's docker socket in this container so that this container can launch
+# other containers.  While these other containers look like they are nested
+# in the development environment container, they are actually running in the
+# host docker service (so they are more sibling containers than child containers)
+# `sam local invoke` launches one of these child-really-a-sibling AWS container.
+# It tries to mount the development environment's code folder in the AWS container
+# to run the code.  This doesn't work because the AWS container is running in the
+# host where the development's code folder (`/code/blah`) does not exist.  So
+# we have to tell `sam local invoke` to use the real folder in the host.  We run
+# a python script that does some digging to find out what this host folder is
+# and use that in the command.
+
+HOST_MOUNT_DIR=$(python ../docker/get_reverse_code_mount_dir.py)
+sam local invoke -v "${HOST_MOUNT_DIR}"/app "$@"
