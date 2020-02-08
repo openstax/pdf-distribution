@@ -2,3 +2,13 @@ version: '3.7'
 services:
   app:
     image: "openstax/buy_print"
+    build: .
+    volumes:
+      - .:/code
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.aws/credentials:/root/.aws/credentials
+    networks:
+      - openstax
+networks:
+  openstax:
+    name: openstax

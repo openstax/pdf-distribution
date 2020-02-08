@@ -66,23 +66,22 @@ This works for the first deploy or for an update.  Note that under the covers, `
 
 Note that deleting Lambda@Edge deployments normally fails, due to something related to how the lambda function is replicated all over the world.  So what will normally happen is that you run this script, it fails, and then you have to wait a few hours and try to delete it again.
 
+## Other Docker things
+
+When you are done with the development-environment container, you can (from the cloned repo folder on your host machine):
+
+`$> docker-compose down`
+
+Calling `docker-compose up` the next time you want to do work.  If you make changes to docker configuration, you can rebuild the image with `docker-compose up --build`.
+
 ## Articles that are useful
 
 - [AWS CloudFormation Documentation][aws-cloudformation]
 - [Managing Lambda@Edge and CloudFront deployments by using a CI/CD pipeline][aws-cf-lambda-ci]
 - [Amazon S3 + Amazon CloudFront: A Match Made in the Cloud][aws-cf-s3]
-- [Chalice CloudFormation Support][aws-chalice-support]
-- [Chalice Pure Lambda Functions][aws-chalice-pure-lambda]
 - [AWS Serverless Application Model][aws-sam]
 
-
-[cnx-archive]: https://github.com/openstax/cnx-archive
-[cnx-db]: https://github.com/openstax/cnx-db
-[content-spike-concourse]: https://github.com/openstax/content-spike-concourse
-[content-two-pager]: https://docs.google.com/document/d/1GW5VGrjKmIRw3nbFTIkBZgE0mlHD9ky2TJ_bSUIcJ_w/edit#heading=h.6u0c02buvzha
 [aws-cloudformation]: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html
-[aws-chalice-support]: https://chalice.readthedocs.io/en/latest/topics/cfn.html
-[aws-chalice-pure-lambda]: https://chalice.readthedocs.io/en/latest/topics/purelambda.html
 [aws-sam]: https://aws.amazon.com/serverless/sam/
 [aws-cf-lambda-ci]: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-options.html
 [aws-cf-s3]: https://aws.amazon.com/blogs/networking-and-content-delivery/amazon-s3-amazon-cloudfront-a-match-made-in-the-cloud/

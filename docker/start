@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-# old stuff borrowed
-# DJANGO_SETTINGS_MODULE=openstax.settings.docker python3 manage.py migrate
-# DJANGO_SETTINGS_MODULE=openstax.settings.docker python3 manage.py createsuperuser
-# DJANGO_SETTINGS_MODULE=openstax.settings.docker python3 manage.py runserver 0.0.0.0:8000
