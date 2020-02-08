@@ -10,7 +10,9 @@ place for their country.
 
 ## Getting Started
 
-Clone the repository and `cd` into it.  Then start the container.
+All development, building, testing, and deploying happens inside of a development environment docker container.
+
+Clone the repository and `cd` into it.  Then start the development environment container.
 
 `$> docker-compose up`
 
@@ -20,82 +22,51 @@ Drop into the container to the `/code` folder:
 
 Configure your AWS credentials.  If you have a `~/.aws/credentials` file it will be mounted in `/root/.aws/credentials`.  One way to set the credentials is to say
 
-`$> ./scripts/set_aws_env_vars openstax-sandbox`
+`/code $> source ./scripts/set_aws_env_vars openstax-sandbox`
 
 where `openstax-sandbox` is the name of a profile in the `credentials` file.
 
-## Using Cloudformation
+This microsite uses the `sam` CLI. Instead of calling it directly with a bunch of options, this repository provides wrapper scripts in the `scripts` directory.
 
+## Run unit tests
 
-### Create the content-distribution stack in AWS once
+`cd` into the `app` directory, then run:
 
-To create the stack run the following using the `aws` cli:
+`/code/app $> python -m pytest tests/ -v`
 
-```bash
-aws cloudformation deploy --template-file cf-templates/firstrun-cloudfront-single-origin-bucket.yaml --region us-east-1 --stack-name content-distribution --tags Project=content-distribution Application=content-distribution Environment=dev Owner=ConEng --capabilities CAPABILITY_IAM
-```
+## Local invocation
 
-Note: This step only needs to be run the first time to create the stack. If you need to make updates please follow the
-instructions in [Update the content-distribution after changes](#update-the-content-distribution-after-changes).
+You can run your lambda function in an AWS-like test environment by calling `sam local invoke`.  This uses an AWS-provided docker container to simulate a real run in AWS.  Because we are running in a development environment container which launches this AWS-provided container, we have to do some gymnastics to make sure directories mount correctly.  For this, we have a wrapper script named `sam_local_invoke`:
 
-Note: This command will take about 15-25min to complete. It will create the following resources in AWS:
+`cd` into the `app` directory, then run:
 
-- Cloudfront distribution
-- Artifact S3 Bucket
-- Raw JSON S3 Bucket
-- Baked HTML S3 Bucket
-- Resources S3 Bucket
-- It will not create the [Lambda Function](./sam-app/lambda_function.py) because this requires the Artifact S3 to be created first.
+`/code/app $> sam_local_invoke --event events/from_us.json`
 
-You can see the progress of deployment in the AWS console [here](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks). Click on the stack name `content-distribution` and open the `events` tab.
+selecting the event you want from the `events` directory.
 
-### Update the content-distribution after changes
+## Build the code
 
-#### Build SAM app
+You need to build the code before you can deploy it:
 
-If you have done by now please build the SAM app:
+`/code $> ./scripts/build`
 
-```bash
-cd sam-app
-# activate a Python3 virtualenv here!
-sam build -b ../.aws-sam
-cd ..
-```
+This wraps a call to `sam build` and puts the built code in a `.aws-sam` directory.
 
-#### Package SAM app and upload
+## Deploy the code
 
-The `aws cloudformation` command can package up the changes and upload to an s3 bucket.
-It allows you to do this by using the `package` argument along with `--s3-bucket` and `--output-template-file` options.
+This involves running `sam deploy`, but again, we provide a wrapper script to hide some boilerplate and to standardize on things like stack names.  Make sure to have built the code first.
 
-This will package up the lambda function, upload to the s3 bucket, and generate a new template that has
-the s3 bucket substituted in the proper locations of the template.
+`/code %> ./scripts/deploy_env --env_name some-env-name`
 
-To update (or first install) the content-distribution stack after a merge run the following:
+This works for the first deploy or for an update.  Note that under the covers, `sam deploy` uses an AWS-managed S3 bucket for storing the built code.  If this is the first time you're running the deployment within an AWS account, you'll need to modify `scripts/deployment.py` to know about this new bucket, which will probably require running `sam deploy` interactively with the `--guided` mode.
 
-```bash
-aws cloudformation package --template-file ./cf-templates/cloudfront-single-origin-bucket.yaml \
---s3-bucket ce-artifacts-content-distribution-373045849756 --output-template-file ./cf-templates/app-output-sam.yaml
-```
+## Delete a deployment
 
-This will output a SAM compiled version of the template that can be used to update the stack.
+`/code %> ./scripts/delete_env --env_name some-env-name`
 
-Run the following command after the one above to update the stack:
+Note that deleting Lambda@Edge deployments normally fails, due to something related to how the lambda function is replicated all over the world.  So what will normally happen is that you run this script, it fails, and then you have to wait a few hours and try to delete it again.
 
-```bash
-aws cloudformation update-stack --stack-name content-distribution \
---region us-east-1 --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM \
---template-body file://./cf-templates/app-output-sam.yaml
-```
-
-## Loading the books into s3
-
-Follow the instructions in [./dump/README.md](./dump/README.md) file.
-
-## Using SAM to build and test the Lambda@Edge function
-
-Follow the instruction in [.sam-app/README.md](./sam-app/README.md) file.
-
-### Articles that are useful
+## Articles that are useful
 
 - [AWS CloudFormation Documentation][aws-cloudformation]
 - [Managing Lambda@Edge and CloudFront deployments by using a CI/CD pipeline][aws-cf-lambda-ci]
@@ -115,3 +86,7 @@ Follow the instruction in [.sam-app/README.md](./sam-app/README.md) file.
 [aws-sam]: https://aws.amazon.com/serverless/sam/
 [aws-cf-lambda-ci]: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-options.html
 [aws-cf-s3]: https://aws.amazon.com/blogs/networking-and-content-delivery/amazon-s3-amazon-cloudfront-a-match-made-in-the-cloud/
+
+## Credits
+
+Thanks to the OpenStax Content Engineering team whose great code I started from to build this!

@@ -63,6 +63,8 @@ RUN printf '%s\n' '[default]' 'region=us-east-1' 'output=json' > /root/.aws/conf
 
 RUN pip install -r /code/scripts/requirements.txt
 
+RUN pip install pytest pytest-mock --user
+
 ENTRYPOINT ["/code/docker/entrypoint"]
 
 CMD docker/start
