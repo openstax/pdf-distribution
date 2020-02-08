@@ -12,7 +12,7 @@ Build your application with the `sam build` command. Make sure to build the SAM 
 with -b into the root directory of the project.
 
 ```bash
-app$ sam build -b ../.aws-sam
+app$ sam build -b ../.aws-sam  # wrapped as `./sam_build`
 ```
 
 The SAM CLI installs dependencies defined in `src/requirements.txt`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
@@ -23,17 +23,6 @@ Run functions locally and invoke them with the `sam_local_invoke` command.  Note
 
 ```bash
 app$ ./sam_local_invoke LambdaEdgeFunction --event events/event.json
-```
-
-The SAM CLI reads the application template to determine the API's routes and the functions that they invoke. The `Events` property on each function's definition includes the route and method for each path.
-
-```yaml
-      Events:
-        Contents:
-          Type: Api
-          Properties:
-            Path: /
-            Method: get
 ```
 
 ## Add a resource to your application

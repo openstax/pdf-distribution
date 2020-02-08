@@ -5,6 +5,7 @@ services:
     volumes:
       - .:/code
       - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.aws/credentials:/root/.aws/credentials
     networks:
       - openstax
 networks:

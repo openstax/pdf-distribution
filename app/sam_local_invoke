@@ -15,4 +15,4 @@
 # and use that in the command.
 
 HOST_MOUNT_DIR=$(python ../docker/get_reverse_code_mount_dir.py)
-sam local invoke -v "${HOST_MOUNT_DIR}"/app "$@"
+sam local invoke LambdaEdgeFunction -v "${HOST_MOUNT_DIR}"/app -t /code/cfn/distribution.yml "$@"

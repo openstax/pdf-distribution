@@ -1,0 +1,22 @@
+#!/usr/bin/env python
+
+"""Deploys a buy_print environment (first time or update)
+
+Usage:
+  deploy_env --env_name=<env_name>
+
+Options:
+  -h --help              Show this help
+  --env_name=<env_name>  The name of the environment to deploy
+
+"""
+
+from docopt import docopt
+import pdb
+from deployment import Deployment
+
+if __name__ == '__main__':
+    arguments = docopt(__doc__)
+
+Deployment(arguments["--env_name"]).deploy()
+

@@ -1,0 +1,12 @@
+#!/usr/bin/env python
+
+import subprocess
+import os
+import pdb
+import pathlib
+
+current_dir = pathlib.Path(__file__).parent.absolute()
+template_file = os.path.abspath(os.path.join(current_dir, '../cfn/distribution.yml'))
+build_dir = os.path.abspath(os.path.join(current_dir, '../.aws-sam'))
+
+subprocess.call(("sam build -t " + template_file + " -b " + build_dir).split())
