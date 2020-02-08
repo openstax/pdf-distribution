@@ -12,7 +12,11 @@ place for their country.
 
 All development, building, testing, and deploying happens inside of a development environment docker container.
 
-Clone the repository and `cd` into it.  Then start the development environment container.
+Clone the repository and `cd` into it.  We first need to build the container, for which we have a script that provides the version of the host's docker install to the build:
+
+`$> ./docker_build`
+
+Then start the development environment container.
 
 `$> docker-compose up`
 
@@ -72,7 +76,7 @@ When you are done with the development-environment container, you can (from the 
 
 `$> docker-compose down`
 
-Calling `docker-compose up` the next time you want to do work.  If you make changes to docker configuration, you can rebuild the image with `docker-compose up --build`.
+Calling `docker-compose up` the next time you want to do work.  If you make changes to docker configuration, you can rebuild the image with the `docker_build` script.
 
 ## Articles that are useful
 
