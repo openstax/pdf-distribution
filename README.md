@@ -54,7 +54,7 @@ You need to build the code before you can deploy it:
 
 `/code $> ./scripts/build`
 
-This wraps a call to `sam build` and puts the built code in a `.aws-sam` directory.
+This wraps a call to `sam build` and puts the built code in a `.aws-sam` directory.  Note that the deployment script automatically builds the code unless it is instructed not to with `--no-build`.
 
 ## Deploy the code
 
@@ -63,6 +63,8 @@ This involves running `sam deploy`, but again, we provide a wrapper script to hi
 `/code %> ./scripts/deploy_env --env_name some-env-name`
 
 This works for the first deploy or for an update.  Note that under the covers, `sam deploy` uses an AWS-managed S3 bucket for storing the built code.  If this is the first time you're running the deployment within an AWS account, you'll need to modify `scripts/deployment.py` to know about this new bucket, which will probably require running `sam deploy` interactively with the `--guided` mode.
+
+Use the `--no-build` option to prevent the deploy script from automatically building the code before the deploy.
 
 ## Delete a deployment
 

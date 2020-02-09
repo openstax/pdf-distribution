@@ -7,7 +7,38 @@ Parameters:
     Type: String
     Description: The name of the environment, e.g. 'staging', 'production'
 
+  CertificateArn:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: '/certs/wildcard'
+
+  HostedZoneName:
+    Description: name of the hosted zone to use
+    Type: String
+    ConstraintDescription: must be a valid Route53 hosted zone domain; no period at end
+
+  Domain:
+    Description: Domain for the distribution, e.g. "openstax.org", configured in Route53
+    Type: String
+    ConstraintDescription: must be a valid domain name
+
+Conditions:
+  # Lambda@Edge functions need to be created in us-east-1; there might be a way
+  # to set up other resources in other regions using StackSets, but for now force
+  # the region with this condition.
+  WrongRegion: !Not [!Equals [!Ref 'AWS::Region', us-east-1]]
+
 Resources:
+
+  Dns:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: !Sub '${HostedZoneName}.'
+      RecordSets:
+        - Name: !Sub '${Domain}.'
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2 # Indicates CloudFront
+            DNSName: !GetAtt 'Distribution.DomainName'
 
   LambdaEdgeFunction:
     Type: AWS::Serverless::Function
@@ -42,6 +73,8 @@ Resources:
     Properties:
       DistributionConfig:
         Comment: !Sub '${EnvName}-buy_print'
+        Aliases:
+          - !Ref 'Domain'
         DefaultCacheBehavior:
           LambdaFunctionAssociations:
             - EventType: origin-request
@@ -74,6 +107,26 @@ Resources:
         HttpVersion: 'http1.1'
         IPV6Enabled: true
         PriceClass: 'PriceClass_All'
+        ViewerCertificate:
+          AcmCertificateArn: !Ref 'CertificateArn'
+          SslSupportMethod: sni-only
+      Tags:
+        - Key: Environment
+          Value: !Ref 'EnvName'
+        - Key: Application
+          Value: BuyPrint
+        - Key: Project
+          Value: BuyPrint
+        - Key: Owner
+          Value: jpslav
+
+  # This resource will only be created when trying to deploy in a wrong region
+  YouAreInTheWrongRegion:
+    Type: "AWS::SSM::Parameter"
+    Condition: WrongRegion
+    Properties:
+      Name: '' # Leave name empty to force a fail
+      Type: String
 
 Outputs:
   LambdaEdgeFunction:
@@ -82,7 +135,10 @@ Outputs:
   DistributionId:
     Description: 'Id for our cloudfront distribution'
     Value: !Ref Distribution
-  DistributionDomainName:
+  RawDistributionDomainName:
     Description: 'Domain name for our cloudfront distribution'
     Value: !GetAtt Distribution.DomainName
+  DistributionDomainName:
+    Description: 'Domain name for our cloudfront distribution'
+    Value: !Ref Domain
 

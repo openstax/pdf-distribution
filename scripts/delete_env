@@ -3,11 +3,11 @@
 """Deletes a buy_print environment
 
 Usage:
-  delete_env --env_name=<env_name>
+  delete_env --env_name <env_name>
 
 Options:
   -h --help              Show this help
-  --env_name=<env_name>  The name of the environment to delete
+  --env_name <env_name>  The name of the environment to delete
 
 """
 
