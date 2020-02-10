@@ -34,9 +34,11 @@ This microsite uses the `sam` CLI. Instead of calling it directly with a bunch o
 
 ## Run unit tests
 
-`cd` into the `app` directory, then run:
+`cd` into the `app/src` directory, then run:
 
-`/code/app $> python -m pytest tests/ -v`
+`/code/app $> python -m pytest ../tests/ -v`
+
+Note that if you try to run this from the `app` directory, you'll get `ModuleNotFoundError: No module named` errors.  If you try to change the imports to relative imports, that error will go away but the SAM local invocation will fail.
 
 ## Local invocation
 

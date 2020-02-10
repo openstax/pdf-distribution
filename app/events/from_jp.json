@@ -3,6 +3,7 @@
     {
       "cf": {
         "request": {
+          "uri": "/psychology",
           "headers": {
             "cloudfront-viewer-country": [
               {
