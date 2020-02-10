@@ -4,10 +4,10 @@ from event import Event
 from book_redirects import BookRedirects
 import re
 
-BookRedirects.set("psychology", amazon_id="1938168356", hp_id="")
-BookRedirects.set("prealgebra", amazon_id="1938168992", hp_id="")
-BookRedirects.set("elementary-algebra", amazon_id="099862571X", hp_id="")
-BookRedirects.set("intermediate-algebra", amazon_id="0998625728", hp_id="")
+BookRedirects.set("psychology", amazon_id="1938168356", other_id="")
+BookRedirects.set("prealgebra", amazon_id="1938168992", other_id="")
+BookRedirects.set("elementary-algebra", amazon_id="099862571X", other_id="")
+BookRedirects.set("intermediate-algebra", amazon_id="0998625728", other_id="")
 
 def lambda_handler(event, context):
     event = Event(event)
