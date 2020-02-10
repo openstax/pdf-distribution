@@ -1,6 +1,5 @@
 import subprocess
 import os
-import pdb
 
 class Deployment:
 
@@ -13,8 +12,10 @@ class Deployment:
 
         if is_sandbox:
             self.hosted_zone_name = "sandbox.openstax.org"
+            self.artifact_bucket = "aws-sam-cli-managed-default-samclisourcebucket-602i575qh4ir"
         else:
             self.hosted_zone_name = "openstax.org"
+            self.artifact_bucket = "unknown"
 
     def delete(self):
         print("Deleting " + self.stack_name)
@@ -27,7 +28,7 @@ class Deployment:
         self.__sh("sam deploy "
                   "--template-file " + os.path.join(os.path.dirname(__file__), '..') + "/.aws-sam/template.yaml "
                   "--capabilities CAPABILITY_IAM "
-                  "--s3-bucket aws-sam-cli-managed-default-samclisourcebucket-602i575qh4ir "
+                  "--s3-bucket " + self.artifact_bucket + " "
                   "--s3-prefix " + self.stack_name + " "
                   "--parameter-overrides " + self.parameters_string() + " "
                   "--stack-name " + self.stack_name)
@@ -56,5 +57,3 @@ class Deployment:
             'HostedZoneName': self.hosted_zone_name,
             'Domain': self.domain()
         }
-
-
