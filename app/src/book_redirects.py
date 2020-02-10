@@ -26,3 +26,20 @@ class BookRedirects:
                 return book_redirects.get("**") or self.fallback_url
             else:
                 return url
+
+    @classmethod
+    def to_html(self):
+        result = "<ul>"
+
+        for slug, hsh in self.redirects.items():
+            result += "<li>" + slug + "<ul>"
+
+            for code, url in hsh.items():
+                result += f"<li>{code}: <a href='{url}'>{url}</a></li>"
+
+            result += "</ul></li>"
+
+        result += "</ul>"
+
+        return result
+

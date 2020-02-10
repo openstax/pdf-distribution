@@ -1,0 +1,19 @@
+{
+  "Records": [
+    {
+      "cf": {
+        "request": {
+          "uri": "/diagnostic",
+          "headers": {
+            "cloudfront-viewer-country": [
+              {
+                "key": "CloudFront-Viewer-Country",
+                "value": "US"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

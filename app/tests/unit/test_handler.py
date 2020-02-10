@@ -2,6 +2,10 @@ import json
 import pytest
 import pdb
 
+# Make pytest find the code, someone better at Python can help me make this better :-)
+import sys
+sys.path.append('/code/app/src')
+
 from src import lambda_function
 
 def event(country_code, slug="/psychology"):
@@ -41,3 +45,6 @@ def test_unknown_us_requests_redirect_to_amazon_all_books_page(mocker):
     response = lambda_function.lambda_handler(event("US", "howdy"), "")
     assert_redirects(response, "https://www.amazon.com/s?me=A1540JPBBI3F06&qid=1517336719")
 
+def test_diagnostic(mocker):
+    response = lambda_function.lambda_handler(event("US", "/diagnostic"), "")
+    assert response['status'] == '200'
