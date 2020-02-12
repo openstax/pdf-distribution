@@ -12,7 +12,7 @@ class BookRedirects:
     def set(self, book_slug, amazon_id, other_id):
         self.redirects[self.normalize_slug(book_slug)] = {
             'US': "https://www.amazon.com/dp/" + amazon_id,
-            '**': "https://google.com"
+            '**': "https://www.amazon.com/dp/" + amazon_id
         }
 
     @classmethod
