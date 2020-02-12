@@ -6,7 +6,11 @@ place for their country.
 ## Requirements
 
 * Docker and Docker Compose
+
+For AWS deploys:
+
 * AWS credentials in `~/.aws/credentials`
+* The ARN of an appropriate wildcard SSL Cert in the AWS Parameter Store under a `/certs/wildcard` key.
 
 ## Getting Started
 
