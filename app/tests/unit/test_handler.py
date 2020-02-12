@@ -39,7 +39,8 @@ def test_us_requests_redirect_to_amazon(mocker):
 
 def test_non_us_requests_redirect_to_other(mocker):
     response = lambda_function.lambda_handler(event("JP"), "")
-    assert_redirects(response, "https://google.com")
+    # assert_redirects(response, "https://google.com") # temporarily set to Amazon
+    assert_redirects(response, "https://www.amazon.com/dp/1938168356")
 
 def test_unknown_us_requests_redirect_to_amazon_all_books_page(mocker):
     response = lambda_function.lambda_handler(event("US", "howdy"), "")
