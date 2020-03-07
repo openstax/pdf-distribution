@@ -19,6 +19,8 @@ RUN apt-get update && \
     libpq-dev \
     curl \
     unzip \
+    openssh-client \
+    locales-all \
     && rm -rf /var/lib/apt/lists/*
 
 # install docker CLI only (using the host's daemon)
@@ -31,6 +33,8 @@ RUN curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${
 # not like being installed as root, so make a user for that purpose, see
 # https://stackoverflow.com/a/58293459/1664216
 
+ENV PATH="/home/linuxbrew/.linuxbrew/bin:${PATH}"
+
 RUN useradd -m -s /bin/bash linuxbrew && \
     echo 'linuxbrew ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers
 
@@ -38,9 +42,21 @@ USER linuxbrew
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
 
 USER root
-ENV PATH="/home/linuxbrew/.linuxbrew/bin:${PATH}"
 
-RUN brew tap aws/tap && brew install aws-sam-cli
+# Install the aws-sam-cli
+#
+# Instead of just saying `brew install aws-sam-cli` we want to pin the version.  This is not
+# as straightforward as you'd expect.  The interwebs say to pass a raw formula URL from github
+# to `brew install`, but this doesn't work for this formula because it references some other code
+# in the repo.  So... our solution is to clone the aws tap, checkout a commit that corresponds to
+# a specific version (the one that updates the bottle to a certain version) and the use brew to
+# "build-from-source".
+
+# Sha 5869c277dbe057e7be8971bb89c9d205bf7e0b64 corresponds to aws-sam-cli 0.44.0
+
+RUN git clone https://github.com/aws/homebrew-tap.git /tmp/aws-tap
+RUN cd /tmp/aws-tap && git checkout 5869c277dbe057e7be8971bb89c9d205bf7e0b64
+RUN brew install --build-from-source /tmp/aws-tap/Formula/aws-sam-cli.rb
 
 # install the AWS CLI (probably could do using brew as well)
 
