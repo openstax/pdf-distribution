@@ -38,7 +38,7 @@ This microsite uses the `sam` CLI. Instead of calling it directly with a bunch o
 
 ## Run unit tests
 
-`cd` into the `app/src` directory, then run:
+`cd` into the `app` directory, then run:
 
 `/code/app $> python -m pytest ../tests/ -v`
 
