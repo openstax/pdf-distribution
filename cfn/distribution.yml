@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: 'Buy Print'
+Description: 'PDF Distribution'
 
 Parameters:
   EnvName:
@@ -40,13 +40,23 @@ Resources:
             HostedZoneId: Z2FDTNDATAQYW2 # Indicates CloudFront
             DNSName: !GetAtt 'Distribution.DomainName'
 
-  LambdaEdgeFunction:
+  ViewerRequestLambdaEdgeFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ../app/src
       Role: !GetAtt LambdaEdgeFunctionRole.Arn
       Runtime: python3.7
-      Handler: lambda_function.lambda_handler
+      Handler: viewer_request_lambda_function.lambda_handler
+      Timeout: 5
+      AutoPublishAlias: live
+
+  ViewerResponseLambdaEdgeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../app/src
+      Role: !GetAtt LambdaEdgeFunctionRole.Arn
+      Runtime: python3.7
+      Handler: viewer_response_lambda_function.lambda_handler
       Timeout: 5
       AutoPublishAlias: live
 
@@ -67,18 +77,29 @@ Resources:
               Service:
                 - "lambda.amazonaws.com"
                 - "edgelambda.amazonaws.com"
+      Policies:
+        - PolicyName: DynamoDbAccessPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Sid: "AllowLambdaToAccessDynamoDbTable"
+                Effect: "Allow"
+                Action: "dynamodb:GetItem"
+                Resource: "arn:aws:dynamodb:*:373045849756:table/kevin-pdfdistro-configs"
 
   Distribution:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
-        Comment: !Sub '${EnvName}-buy_print'
+        Comment: !Sub '${EnvName}-kevin_pdfdistro'
         Aliases:
           - !Ref 'Domain'
         DefaultCacheBehavior:
           LambdaFunctionAssociations:
-            - EventType: origin-request
-              LambdaFunctionARN: !Ref LambdaEdgeFunction.Version
+            - EventType: viewer-request
+              LambdaFunctionARN: !Ref ViewerRequestLambdaEdgeFunction.Version
+            - EventType: viewer-response
+              LambdaFunctionARN: !Ref ViewerResponseLambdaEdgeFunction.Version
           AllowedMethods:
             - 'HEAD'
             - 'GET'
@@ -86,8 +107,8 @@ Resources:
             - 'HEAD'
             - 'GET'
           Compress: false
-          DefaultTTL: 0
-          MaxTTL: 0
+          DefaultTTL: 10
+          MaxTTL: 30
           MinTTL: 0
           ForwardedValues:
             Cookies:
@@ -95,13 +116,13 @@ Resources:
             Headers:
               - 'CloudFront-Viewer-Country'
             QueryString: false
-          TargetOriginId: DummyOrigin
+          TargetOriginId: S3Origin
           ViewerProtocolPolicy: 'redirect-to-https'
         Origins:
-          - Id: DummyOrigin
-            DomainName: openstax.org
-            CustomOriginConfig:
-              OriginProtocolPolicy: https-only
+          - Id: S3Origin
+            DomainName: kevin-pdfdistro.s3.amazonaws.com
+            S3OriginConfig:
+              OriginAccessIdentity: origin-access-identity/cloudfront/E271MG7GRTCHSV
         DefaultRootObject: ''
         Enabled: true
         HttpVersion: 'http1.1'
@@ -114,11 +135,11 @@ Resources:
         - Key: Environment
           Value: !Ref 'EnvName'
         - Key: Application
-          Value: BuyPrint
+          Value: PdfDistro
         - Key: Project
-          Value: BuyPrint
+          Value: PdfDistro
         - Key: Owner
-          Value: jpslav
+          Value: klb
 
   # This resource will only be created when trying to deploy in a wrong region
   YouAreInTheWrongRegion:
@@ -129,9 +150,12 @@ Resources:
       Type: String
 
 Outputs:
-  LambdaEdgeFunction:
-    Description: Lambda@Edge handler for content
-    Value: !Ref LambdaEdgeFunction.Version
+  ViewerRequestLambdaEdgeFunction:
+    Description: Lambda@Edge handler for viewer requests
+    Value: !Ref ViewerRequestLambdaEdgeFunction.Version
+  ViewerResponseLambdaEdgeFunction:
+    Description: Lambda@Edge handler for viewer responses
+    Value: !Ref ViewerResponseLambdaEdgeFunction.Version
   DistributionId:
     Description: 'Id for our cloudfront distribution'
     Value: !Ref Distribution

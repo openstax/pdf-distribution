@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   app:
-    image: "openstax/buy_print"
+    image: "openstax/pdf_distro"
     build: .
     volumes:
       - .:/code

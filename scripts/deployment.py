@@ -4,7 +4,7 @@ import os
 class Deployment:
 
     def __init__(self, env_name, is_sandbox=True):
-        self.name = "buy-print"
+        self.name = "pdfdistro"
         self.env_name = env_name
         # This deployment has only one stack
         self.stack_name = "-".join([self.env_name, self.name, "main"])
@@ -39,7 +39,7 @@ class Deployment:
         subprocess.call(command)
 
     def domain(self):
-        subdomain_parts = ["buyprint"]
+        subdomain_parts = ["pdfdistro"]
         if self.env_name != "production":
             subdomain_parts.append(self.env_name)
         subdomain = "-".join(subdomain_parts)
