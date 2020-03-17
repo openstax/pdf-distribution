@@ -82,7 +82,7 @@ def lambda_handler(event, context):
     ## If this is a login request, set the appropriate user cookie.
     ##
 
-    match = re.search('^/login/(\w+)$', pretty_uri)
+    match = re.search(r'^/login/(\w+)$', pretty_uri)
     if match:
         user_cookie = match.group(1)
         response = {
