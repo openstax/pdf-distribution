@@ -1,7 +1,6 @@
-# buy_print
+# pdf-distribution
 
-A microsite for directing OpenStax traffic looking to purchase a book to the correct
-place for their country.
+New and improved PDF distribution using AWS SAM and AWS CloudFront.
 
 ## Requirements
 
