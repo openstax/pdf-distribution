@@ -1,1 +1,7 @@
+
+##
+## Test dependencies below.
+##
+
 Mako==1.1.2
+pytest-mock==2.0.0
