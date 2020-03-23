@@ -1,0 +1,14 @@
+{
+  "access_map": {
+    "M": ${access_map}
+  },
+  "config_id": {
+    "S": ${version}
+  },
+  "is_current": {
+    "BOOL": true
+  },
+  "uri_map": {
+    "M": ${uri_map}
+  }
+}
