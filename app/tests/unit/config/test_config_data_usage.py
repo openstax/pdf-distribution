@@ -6,7 +6,7 @@ from unittest import mock
 def load_config(config_name, **data):
     from mako.template import Template
 
-    with open('./tests/integration/config/{}.json'.format(config_name)) as fd:
+    with open('./tests/unit/config/{}.json'.format(config_name)) as fd:
         template_text = fd.read()
 
     config_text = Template(template_text).render(**data)
