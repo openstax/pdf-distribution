@@ -1,0 +1,49 @@
+{
+  "access_map": {
+    "M": {
+      "/some-ugly-path/book_1.txt": {
+        "S": "user_category_1 user_category_2 user_category_3 -"
+      },
+      "/some-ugly-path/book_2.txt": {
+        "S": "user_category_1 user_category_2 -"
+      },
+      "/some-ugly-path/book_3.txt": {
+        "S": "user_category_1 -"
+      },
+      "/some-ugly-path/book_4.txt": {
+        "S": "-"
+      }
+    }
+  },
+  "config_id": {
+    "S": "ver_1"
+  },
+  "is_current": {
+    "BOOL": true
+  },
+  "uri_map": {
+    "M": {
+      "/some-pretty-path/1": {
+        "S": "/some-ugly-path/book_1.txt"
+      },
+      "/some-pretty-path/2": {
+        "S": "/some-ugly-path/book_2.txt"
+      },
+      "/some-pretty-path/3": {
+        "S": "/some-ugly-path/book_3.txt"
+      },
+      "/some-pretty-path/4": {
+        "S": "/some-ugly-path/book_4.txt"
+      },
+      "/some-pretty-path/5": {
+        "S": "/some-ugly-path/book_5.txt"
+      },
+      "/some-pretty-path/latest": {
+        "S": "/some-pretty-path/2"
+      },
+      "/some-ugly-path/book_1.txt": {
+        "S": "/some-ugly-path/book_1.txt"
+      }
+    }
+  }
+}

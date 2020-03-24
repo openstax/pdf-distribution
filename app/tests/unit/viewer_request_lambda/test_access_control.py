@@ -1,13 +1,10 @@
-import json
-import pytest
-import pdb
-from unittest import mock
-
 from src import viewer_request_lambda_function
 
-def load_event(event_name, **data):
-    from mako.template import Template
+import json
+from mako.template import Template
+from unittest import mock
 
+def load_event(event_name, **data):
     with open('./events/{}.json'.format(event_name)) as fd:
         template_text = fd.read()
 

@@ -1,51 +1,9 @@
 import json
-import boto3
 import urllib
 import re
 import datetime
 
-class Config(object):
-    def __init__(self, region_name, table_name):
-        self.region_name = region_name
-        self.table_name  = table_name
-
-        session = boto3.session.Session(region_name=self.region_name)
-        ddb_client = session.client('dynamodb')
-
-        ## Get the current config id.
-        ddb_response = ddb_client.get_item(
-            TableName=self.table_name,
-            Key={'config_id': {'S': 'current'}},
-        )
-        cur_config_id = ddb_response['Item']['data']['S']
-
-        ## Get the current config data.
-        self.config_data = ddb_client.get_item(
-            TableName=self.table_name,
-            Key={'config_id': {'S': cur_config_id}},
-        )
-
-    def get_ugly_uri(self, pretty_uri):
-        ugly_uri = None
-        new_uri = pretty_uri
-        while True:
-            new_uri = self.config_data['Item']['uri_map']['M'] \
-                          .get(new_uri,{}) \
-                          .get('S', None)
-            if new_uri is None:
-                break
-            elif new_uri == ugly_uri:
-                break
-            else:
-                ugly_uri = new_uri
-        return ugly_uri
-
-    def access_is_allowed(self, user, ugly_uri):
-        allowed = self.config_data['Item']['access_map']['M'] \
-                      .get(ugly_uri,{}) \
-                      .get('S', '-') \
-                      .strip().split()
-        return user in allowed
+from src.config import Config
 
 ## from: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-examples.html#lambda-examples-redirect-to-signin-page
 def parseCookies(headers):
