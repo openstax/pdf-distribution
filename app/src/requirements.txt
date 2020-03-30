@@ -1,3 +1,5 @@
+# git+git://github.com/openstax/late-python.git@49c4529
+git+git://github.com/openstax/late-python.git@klb_update_overlays
 
 ##
 ## Test dependencies below.

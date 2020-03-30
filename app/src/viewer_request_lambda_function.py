@@ -1,19 +1,11 @@
+import datetime
 import json
 import urllib
 import re
-import datetime
+
+from oxlate import Event, Request, Response
 
 from src.config import Config
-
-## from: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-examples.html#lambda-examples-redirect-to-signin-page
-def parseCookies(headers):
-    parsedCookie = {}
-    if headers.get('cookie'):
-        for cookie in headers['cookie'][0]['value'].split(';'):
-            if cookie:
-                parts = cookie.split('=')
-                parsedCookie[parts[0].strip()] = parts[1].strip()
-    return parsedCookie
 
 def lambda_handler(event, context):
     ##
@@ -21,8 +13,8 @@ def lambda_handler(event, context):
     ## from the event.
     ##
 
-    request = event['Records'][0]['cf']['request']
-    pretty_uri = request['uri']
+    request = Event(event).request()
+    pretty_uri = request.get_uri()
 
     ##
     ## If this is an echo request, just return
@@ -32,7 +24,7 @@ def lambda_handler(event, context):
     if pretty_uri == '/echo':
         response = {
             'status': 200,
-            'body': json.dumps(request),
+            'body': json.dumps(request.to_dict()),
         }
         return response
 
@@ -43,48 +35,45 @@ def lambda_handler(event, context):
     match = re.search(r'^/login/(\w+)$', pretty_uri)
     if match:
         user_cookie = match.group(1)
-        response = {
-            'status': 200,
-            'headers': {
-                'Set-COOKIE': [
-                    {
-                        'key': 'Set-COOKIE',
-                        'value': 'user={}; Path=/'.format(user_cookie)
-                    }
-                ]
-            },
-            'body': json.dumps('logged in as {}'.format(user_cookie))
-        }
-        return response
+
+        response = Response(
+            status = 200,
+            body   = json.dumps('logged in as {}'.format(user_cookie))
+        )
+        response.get_headers() \
+                .set_response_cookie(name='user', value=user_cookie)
+
+        return response.to_dict()
 
     ##
     ## If this is a logout request, clear the user cookie.
     ##
 
     if pretty_uri == '/logout':
-        expires = datetime.datetime.utcnow() + datetime.timedelta(days=-1)
-        expires_str = expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
-        response = {
-            'status': 200,
-            'headers': {
-                'Set-COOKIE': [
-                    {
-                        'key': 'Set-COOKIE',
-                        'value': 'user=deleted; Path=/; Expires={}'.format(expires_str)
-                    }
-                ]
-            },
-            'body': json.dumps('logged out')
-        }
-        return response
+        response = Response(
+            status = 200,
+            body   = json.dumps('logged out'),
+        )
+
+        expires_at = datetime.datetime.utcnow() + datetime.timedelta(days=-1)
+        response.get_headers() \
+                .set_response_cookie(
+                    name  = 'user',
+                    value = 'deleted',
+                    path  = '/',
+                    expires_at = expires_at,
+                )
+
+        return response.to_dict()
 
     ##
     ## Extract the relevant cookies from the request.
     ##
 
-    cookies = parseCookies(request['headers'])
-    user_cookie      = cookies.get('user', 'anonymous')
-    diversion_cookie = cookies.get('diversion', None)
+    user_cookie      = request.get_headers() \
+                              .get_request_cookie('user', default='anonymous')
+    diversion_cookie = request.get_headers() \
+                              .get_request_cookie('diversion', default=None)
 
     ##
     ## If the user does NOT have a diversion cookie,
@@ -95,12 +84,12 @@ def lambda_handler(event, context):
     ##
 
     if diversion_cookie is None:
-        request['uri'] = '/diversion/diversion_page.html'
-        request['headers']['openstax-add-diversion'] = [
-            { 'key': 'Openstax-Add-Diversion',
-              'value': 'do-it-NOW!' }
-        ]
-        return request
+        request.set_uri('/diversion/diversion_page.html')
+        request.get_headers().set(
+            name  = 'openstax-add-diversion',
+            value = 'do-it-NOW!',
+        )
+        return request.to_dict()
 
     ##
     ## Connect to DynamoDb and look up the
@@ -122,11 +111,11 @@ def lambda_handler(event, context):
 
     ugly_uri = config.get_ugly_uri(pretty_uri)
     if ugly_uri is None:
-        response = {
-            'status': 404,
-            'body': json.dumps("Ain't no Thang!")
-        }
-        return response
+        response = Response(
+            status = 404,
+            body   = json.dumps("Ain't no Thang!"),
+        )
+        return response.to_dict()
 
     ##
     ## Check the permissions on the ugly uri,
@@ -135,15 +124,15 @@ def lambda_handler(event, context):
     ##
 
     if not config.access_is_allowed(user=user_cookie, ugly_uri=ugly_uri):
-        response = {
-            'status': 403,
-            'body': json.dumps("Oh no you didn't!")
-        }
-        return response
+        response = Response(
+            status = 403,
+            body   = json.dumps("Oh no you didn't!"),
+        )
+        return response.to_dict()
 
     ##
     ## Adjust the uri and forward the request.
     ##
 
-    request['uri'] = ugly_uri
-    return request
+    request.set_uri(ugly_uri)
+    return request.to_dict()

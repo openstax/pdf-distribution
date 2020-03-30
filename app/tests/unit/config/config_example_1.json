@@ -1,4 +1,52 @@
 {
+  "ugly_uri_data_map": {
+    "M": {
+      "/some-ugly-path/some-resource-1": {
+        "data": {
+          "M": {
+            "access_list": {
+              "S": "teacher student -"
+            },
+            "rex_diversion_info": {
+              "M": {
+                "is_available": {
+                  "BOOL": true
+                },
+                "rex_url": {
+                  "S": "some-rex-url"
+                },
+                "diversion_cookie_valid_for": {
+                  "S": "1 week from now"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/some-ugly-path/some-resource-2": {
+        "data": {
+          "M": {
+            "access_list": {
+              "S": "teacher -"
+            },
+            "rex_diversion_info": {
+              "M": {
+                "is_available": {
+                  "BOOL": false
+                },
+                "rex_url": {
+                  "S": "-"
+                },
+                "diversion_cookie_valid_for": {
+                  "S": "-"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "access_map": {
     "M": {
       "/some-ugly-path/book_1.txt": {
