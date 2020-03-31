@@ -5,7 +5,7 @@ import re
 
 from oxlate import Event, Request, Response
 
-from src.config import Config
+from .config import Config
 
 def lambda_handler(event, context):
     ##
